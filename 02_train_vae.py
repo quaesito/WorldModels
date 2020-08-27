@@ -71,14 +71,14 @@ def main(args):
   except:
     print('NO DATA FOUND')
     raise
-      
+
   print('DATA SHAPE = {}'.format(data.shape))
 
   for epoch in range(epochs):
     print('EPOCH ' + str(epoch))
     vae.save_weights('./vae/weights.h5')
     vae.train(data)
-    
+
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=('Train VAE'))

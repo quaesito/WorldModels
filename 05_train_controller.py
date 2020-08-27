@@ -77,7 +77,7 @@ def initialize_settings(sigma_init=0.1, sigma_decay=0.9999, init_opt = ''):
   #print("size of model", num_params)
 
   if len(init_opt) > 0:
-    es = pickle.load(open(init_opt, 'rb'))  
+    es = pickle.load(open(init_opt, 'rb'))
   else:
     if optimizer == 'ses':
       ses = PEPG(num_params,
@@ -162,7 +162,7 @@ def encode_solution_packets(seeds, solutions, max_len=-1):
   result = np.split(result, num_worker)
 
 
-  
+
   return result
 
 def decode_solution_packet(packet):
@@ -215,7 +215,7 @@ def follower():
 
   new_model = make_model()
   dream_model = make_model()
-  
+
   while 1:
     #print('waiting for packet')
     packet = comm.recv(source=0)
@@ -225,12 +225,12 @@ def follower():
 
     packet = packet['result']
 
-    
+
     assert(len(packet) == SOLUTION_PACKET_SIZE), (len(packet), SOLUTION_PACKET_SIZE)
     solutions = decode_solution_packet(packet)
 
     results = []
-    
+
     if dream_mode:
       new_model.make_env(current_env_name + '_dream', model = dream_model)
     else:
@@ -239,18 +239,18 @@ def follower():
 
     for solution in solutions:
       worker_id, jobidx, seed, max_len, weights = solution
-      
+
       worker_id = int(worker_id)
       possible_error = "work_id = " + str(worker_id) + " rank = " + str(rank)
       assert worker_id == rank, possible_error
       jobidx = int(jobidx)
       seed = int(seed)
-    
+
       fitness, timesteps = worker(weights, seed, max_len, new_model)
-     
+
       results.append([worker_id, jobidx, fitness, timesteps])
 
-    
+
     new_model.env.close()
 
     result_packet = encode_result_packet(results)
@@ -344,10 +344,10 @@ def leader():
   best_reward_eval = 0
   best_model_params_eval = None
 
-  
+
 
   while True:
-    
+
     t += 1
 
     solutions = es.ask()
@@ -363,7 +363,7 @@ def leader():
     reward_list = np.zeros(population)
     time_list = np.zeros(population)
     e_num = 1
-    
+
     for current_env_name in config.train_envs:
       # print('before send packets')
       # tracker1 = SummaryTracker()
@@ -378,7 +378,7 @@ def leader():
       if len(config.train_envs) > 1:
         print('completed environment {} of {}'.format(e_num, len(config.train_envs)))
       e_num += 1
-      
+
     reward_list = reward_list / len(config.train_envs)
     time_list = time_list / len(config.train_envs)
 
@@ -419,7 +419,7 @@ def leader():
     # sprint(np.array(es.current_param()).round(4))
     # sprint(np.array(es.current_param()).round(4).sum())
 
-    
+
 
     if (t == 1):
       best_reward_eval = avg_reward
@@ -443,7 +443,7 @@ def leader():
 
       with open(filename_best, 'wt') as out:
         res = json.dump([best_model_params_eval, best_reward_eval], out, sort_keys=True, indent=0, separators=(',', ': '))
-      
+
       sprint("improvement", t, improvement, "curr", reward_eval, "prev", prev_best_reward_eval, "best", best_reward_eval)
 
 
@@ -489,8 +489,8 @@ def mpi_fork(n):
       OMP_NUM_THREADS="1",
       IN_MPI="1"
     )
-    print( ["mpirun", "-np", str(n), sys.executable] + sys.argv)
-    subprocess.check_call(["mpirun", "-np", str(n), sys.executable] +['-u']+ sys.argv, env=env)
+    print( ["mpiexec", "-np", str(n), sys.executable] + sys.argv)
+    subprocess.check_call(["mpiexec", "-np", str(n), sys.executable] +['-u']+ sys.argv, env=env, shell=True)
     return "parent"
   else:
     global nworkers, rank

@@ -58,6 +58,7 @@ class VAEModel(Model):
             kl_loss = tf.reduce_sum(kl_loss, axis = 1)
             kl_loss *= -0.5
             total_loss = reconstruction_loss + kl_loss
+
         grads = tape.gradient(total_loss, self.trainable_weights)
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
         return {
@@ -65,7 +66,7 @@ class VAEModel(Model):
             "reconstruction_loss": reconstruction_loss,
             "kl_loss": kl_loss,
         }
-    
+
     def call(self,inputs):
         latent = self.encoder(inputs)
         return self.decoder(latent)
@@ -97,9 +98,9 @@ class VAE():
         vae_z_log_var = Dense(Z_DIM, name='log_var')(vae_z_in)
 
         vae_z = Sampling(name='z')([vae_z_mean, vae_z_log_var])
-        
 
-        #### DECODER: 
+
+        #### DECODER:
         vae_z_input = Input(shape=(Z_DIM,), name='z_input')
 
         vae_dense = Dense(1024, name='dense_layer')(vae_z_input)
@@ -108,11 +109,9 @@ class VAE():
         vae_d2 = Conv2DTranspose(filters = CONV_T_FILTERS[1], kernel_size = CONV_T_KERNEL_SIZES[1] , strides = CONV_T_STRIDES[1], activation=CONV_T_ACTIVATIONS[1], name='deconv_layer_2')(vae_d1)
         vae_d3 = Conv2DTranspose(filters = CONV_T_FILTERS[2], kernel_size = CONV_T_KERNEL_SIZES[2] , strides = CONV_T_STRIDES[2], activation=CONV_T_ACTIVATIONS[2], name='deconv_layer_3')(vae_d2)
         vae_d4 = Conv2DTranspose(filters = CONV_T_FILTERS[3], kernel_size = CONV_T_KERNEL_SIZES[3] , strides = CONV_T_STRIDES[3], activation=CONV_T_ACTIVATIONS[3], name='deconv_layer_4')(vae_d3)
-        
 
         #### MODELS
 
-    
         vae_encoder = Model(vae_x, [vae_z_mean, vae_z_log_var, vae_z], name = 'encoder')
         vae_decoder = Model(vae_z_input, vae_d4, name = 'decoder')
 
@@ -120,7 +119,7 @@ class VAE():
 
         opti = Adam(lr=LEARNING_RATE)
         vae_full.compile(optimizer=opti)
-        
+
         return (vae_full,vae_encoder, vae_decoder)
 
     def set_weights(self, filepath):
@@ -132,6 +131,6 @@ class VAE():
                 shuffle=True,
                 epochs=1,
                 batch_size=BATCH_SIZE)
-        
+
     def save_weights(self, filepath):
         self.full_model.save_weights(filepath)

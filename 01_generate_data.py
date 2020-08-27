@@ -78,6 +78,7 @@ def main(args):
 
         env.close()
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=('Create new training data'))
     parser.add_argument('env_name', type=str, help='name of environment')
