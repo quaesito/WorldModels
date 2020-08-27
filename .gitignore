@@ -8,7 +8,14 @@ __pycache__/
 *.jpg
 *.JPG
 *.xlsx
-*.h5
+.ipynb_checkpoints/
+archive/
+videos/
+data/*/*.npz
+*.npz
+*.pk
+*best.json
+*current.json
 *.rar
 *.pkl
 *.docx
